@@ -65,8 +65,22 @@ Q. Classic scripts vs. module scripts in JavaScript?
     Normal script- will block the parsing of the code as soon as your browser will encounter the  script tag and then it will load that script nad then it will execute that script and then html parsing will start again 
     Async script- as soon as your browser will encounter your async script  then it will keep parsing the html but along with that it will also fetch the script parallel and as soon as this fetch get completed then you script will start executing this execution can also happen before the completion of  your html parsing  and can also be happen after your html parsing , thus all depends upon the how much time does your js takes to load . 
 2. crossorigin:
-
+  this attribute provides support for CORS
      valid on: audio,img,link,script and video elements 
      
 3. What is CORE?
- 
+ It is a HTTP header based mechanism that permits you on loading resources from different origins
+
+CORS: cross origin resources sharing - a mechanism that uses the http headers to tell the browser  that if two application with different origin can  share resources or not with each other . If they have same origin sharing can be done easily , otherwise they need to follow CORS .
+When origin A  makes a call to the origin B at that time initially a preflight call is made also called as options call and then it receives at the end B and  now B has thr responsibility to check that if resources sharing is possible or not and then this B will send you the additional header and upn looking at those additional header origin A will send the actual call. 
+
+Additional HTTP headers- Access-control-Allow-Origin: can have different value , 
+*- any domain can access it. 
+robinKhilery.com- call can be made from this origin 
+
+Does all the request made from A to B follow this method-NO, not all the request  call the preflight . 
+
+
+
+
+When you uses react with the help of cdn the at that time you get the React as a global object that can be accessed from anywhere in your app
