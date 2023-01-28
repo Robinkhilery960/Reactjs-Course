@@ -230,3 +230,76 @@ Myths around useMemo:
 1. It  is connected to reactMemo- these two are not connected , both are completety differ
 2. it is a performance killer- it is a single level memorization - it will just look over the   the dependent array if it is same then it will return you the same value otherwise it will created a new value and returns to you but it is only at a single level - so problem in performance 
 
+# useCallback  : 
+Let say you have a lost of the names and you want to sort them using our own defined sort function , this is how you will do that 
+````javascript
+import React, { useState,useMemo } from 'react'
+
+ const SortList=({nameList,sortFn})=>{
+     console.log("sortList is rendering")
+return  useMemo(()=>{
+    console.log("useMemo is running")
+   return  [...nameList].sort(sortFn)
+},[nameList,sortFn])
+}
+
+function UseMemo_useCallback() {
+    const [counter,setCounter]=useState(10)
+    const [nameList]=useState(["Robin", "Rohit", "Ajay", "Prem"])
+    console.log(nameList)
+    const sortFunc=(a, b)=>a.localeCompare(b)*-1
+  return (
+    <>
+    <div>nameList:{nameList}</div>
+    <div><SortList nameList={nameList} sortFn={sortFunc}/></div>
+    <div>{counter}</div>
+    <button onClick={()=>setCounter(counter+1)}>Increase counter</button>
+    </>
+  )
+}
+
+export default UseMemo_useCallback
+````
+
+But the issue wih the above code is that it actually alter the use of useMemo that was yu want to sort the array only when the dependencies changes like the nameList Array. Every time  the   UseMemo_useCallback function render the sort is also called but we don;t want that . So how to avoids that actually -
+1. define your sort function as globally so that every time your UseMemo_useCallback function is called so you don't creates a new sortFunc for you which have a new reference.
+2. You uses the callback while defining that function  so    that function is defined only when the dependencies array changes
+
+````javascript
+import React, { useState,useMemo ,useCallback} from 'react'
+
+ const SortList=({nameList,sortFn})=>{
+     console.log("sortList is rendering")
+return  useMemo(()=>{
+    console.log("useMemo is running")
+   return  [...nameList].sort(sortFn)
+},[nameList,sortFn])
+}
+
+function UseMemo_useCallback() {
+    const [counter,setCounter]=useState(10)
+    const [nameList]=useState(["Robin", "Rohit", "Ajay", "Prem"])
+    console.log(nameList)
+
+    const sortFunc= useCallback((a, b)=>a.localeCompare(b) *-1,[])
+
+  return (
+    <>
+    <div>nameList:{nameList}</div>
+    <div><SortList nameList={nameList} sortFn={sortFunc}/></div>
+    <div>{counter}</div>
+    <button onClick={()=>setCounter(counter+1)}>Increase counter</button>
+    </>
+  )
+}
+
+export default UseMemo_useCallback
+````
+By using callback we are actually making that reference remain the same.Here sortFunc is created once only when the first time the UseMemo_useCallback render 
+
+When to use useCallback:
+1. If you are creating a callback   is going on the nested component   as a property this case we are passing sortFunction as property to the sortedList and you don't now the internal of sortedList , so make sure that you stabilize the reference that you send to the nested component 
+2. When you are creating a custom hook because you have no idea that the component that is going to use your hook 
+
+When to not use useCallback:
+1. If you are using a simple input not use callback it will be overkill 
