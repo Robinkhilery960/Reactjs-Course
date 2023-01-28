@@ -1,13 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client'; 
 // import UseState from './useState.js'; 
-import UseReducer from './useReducer.js'; 
+// import UseReducer from './useReducer.js'; 
+import UseMemo_useCallback from './useMemo_useCallback.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     {/* <UseState/> */}
-    <UseReducer />
+    {/* <UseReducer /> */}
+    <UseMemo_useCallback />
   </React.StrictMode>
 );
 

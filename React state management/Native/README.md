@@ -160,4 +160,73 @@ export default UseReducer;
 ````
 
 
+# useMemo:
+
+An way to maintain   the state .
+useMemo think like use calculated value 
+LEt say you have an array and entries are like 10,20,30 and you want to add these all numbers - you can use reduce and this will give you the result bit lest say that this array is huge and each time your app will re-render then it will calculate this whole array that would be very costly so to save yourself from that you can use useMemo hooks that will take two arguments one the function that will calculate the value for you  and other is the dependency array that will contain anything as whole like an array , an object on which your calculation function will take place means that every  entry of your array or object.
+````javascript
+import {useState,useMemo} from 'react'
+
+function UseMemo_useCallback() {
+    const[array,setArray]=useState([10, 20, 30])
+
+    // const total=array.reduce((acc,curr)=>acc+curr,0)
+
+    const total=useMemo(array.reduce((acc,curr)=>acc+curr,0),
+    [array])
+  return (
+    <div>total:{total}</div>
+  )
+}
+
+export default UseMemo_useCallback
+````
+Here this total value will be calculated only when this array value is changed. 
+
+Cases where you want to use Memo -
+1. any type of complex calculation that you  want to calculate only specific times not on every render 
+2. when you are creating an array or an object that is because react compares array and object by reference 
+
+Let say that you have an list of the name you want to sort this array using the ort method so this will sort your array in place and every time this render will take place this sort is going to run again  and again  so we can use here our useMemo hook.First there could be chance that these arrayList could be of very large and the other reason to useMemo here is that there is creation of an array or object 
+
+````javascript
+import {useState,useMemo} from 'react'
+
+function UseMemo_useCallback() {
+    const[array,setArray]=useState([10, 20, 30])
+
+    // const total=array.reduce((acc,curr)=>acc+curr,0)
+
+    const total=useMemo(()=>array.reduce((acc,curr)=>acc+curr,0),
+    [array])
+
+    const [namesList]=useState(["Robin", "Sunil", "Rohit", "Aditya"])
+
+    // const sortedList=namesList.sort() // will mutate the array and will return you the reference of the array but content of the array will be mutated 
+
+    // const sortedList=[...namesList].sort()   
+
+    const sortedList=useMemo(()=>[...namesList].sort(),[namesList]) 
+    //as the nameList will change we wan to run this sort again 
+  return (
+    <>
+    <div>total:{total}</div>
+    <div>namesList:{namesList}</div>
+    <div>sortedList:{sortedList}</div>
+    </>
+  )
+
+}
+
+export default UseMemo_useCallback
+````
+
+When to not use useMemo-
+1. very simple calculations- num1+num2
+2.and if it results into a scaler 
+
+Myths around useMemo:
+1. It  is connected to reactMemo- these two are not connected , both are completety differ
+2. it is a performance killer- it is a single level memorization - it will just look over the   the dependent array if it is same then it will return you the same value otherwise it will created a new value and returns to you but it is only at a single level - so problem in performance 
 
