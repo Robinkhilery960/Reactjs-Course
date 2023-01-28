@@ -303,3 +303,264 @@ When to use useCallback:
 
 When to not use useCallback:
 1. If you are using a simple input not use callback it will be overkill 
+
+
+# useEffect  :
+1. We uses this for mostly making api request 
+
+useEffect  will allow us to say that only do this thing once
+useEffect takes a function that is going to call once the dom is rendered  or whenever you react wants to call your useEffect  that is whenever  you dependencies array will change it is going to call it 
+
+````javascript
+import React, { useEffect, useState } from 'react'
+
+function UseEffect() {
+    const [names,setNames]=useState([])
+ 
+   useEffect(()=>{
+    fetch("/names.json")
+    .then((res)=>res.json())
+    .then((data)=>setNames(data))
+   },[])
+   
+  return (
+    <div>names:{names.join(" ")}</div>
+  )
+}
+
+export default UseEffect
+````
+Why useEffect is called two times on every render ?
+
+In react 18 every time it render a component in dev mode with strict mode enabled it mounts it which renders it , it unmounts it which in the case of useEffect should call a cleanup function which we have not defines in use Effect here  and then it remounts again it and that remounting calls the useEffect again  - so it is called twice 
+
+If you dot want that then you can  remove the strict mode from your app in index.js. It only happens in the dev mode not in the production  
+
+The below code is working fine but thats not how you should use The useEffect in your code instead you should only use Effect when it is needed for example in the code below you can see that.
+
+````javascript
+import React, { useEffect, useState } from 'react'
+
+function UseEffect() {
+    const [names,setNames]=useState([])
+
+    console.log(names)
+   useEffect(()=>{
+    fetch("/names.json")
+    .then((res)=>res.json())
+    .then((data)=>setNames(data))
+   },[])
+
+   const [selectedName,setSelectedName]=useState(null)
+   const [selectedNameDetail,setSelectedNameDetail]=useState(null)
+
+   useEffect(()=>{
+    if(selectedName){ 
+        fetch(`/${selectedName}.json`)
+        .then((res)=>res.json())
+        .then((data)=>setSelectedNameDetail(data))
+    }
+   },[selectedName])
+   
+  return (
+    <div> 
+        {
+            names && names.map((name,index)=><button  key={index} onClick={()=>setSelectedName(name)}>{name}</button> )
+        }
+        <div>selectedName:{selectedName}</div>
+        <div>selectedNameDetail:{JSON.stringify(selectedNameDetail)}</div>
+        
+    </div>
+  )
+}
+
+export default UseEffect
+````
+
+The above code could be written like this also 
+````javascript
+import React, { useEffect, useState } from 'react'
+
+function UseEffect() {
+    const [names,setNames]=useState([])
+
+    console.log(names)
+   useEffect(()=>{
+    fetch("/names.json")
+    .then((res)=>res.json())
+    .then((data)=>setNames(data))
+   },[])
+ 
+   const [selectedNameDetail,setSelectedNameDetail]=useState(null)
+
+   const onSelectNameChange=(name)=>{
+    if(name){ 
+        fetch(`/${name}.json`)
+        .then((res)=>res.json())
+        .then((data)=>setSelectedNameDetail(data))
+    }
+   }
+    
+  return (
+    <div> 
+        {
+            names && names.map((name,index)=><button  key={index} onClick={()=>onSelectNameChange(name)}>{name}</button> )
+        } 
+        <div>selectedNameDetail:{JSON.stringify(selectedNameDetail)}</div>
+        
+    </div>
+  )
+}
+
+export default UseEffect
+````
+
+You don't need here useEffect You just need to do it when  user interact with you.
+
+The best way to use useEffect is to use it as much as less possible 
+
+
+lets create a stopwatch component that will return you time
+Thi below code will run for infinite number if time and this  component will be rendered infinite number of times. 
+````javascript
+ const StopWatch=()=>{
+    const [time,setTime]=useState(0) 
+    setTimeout(()=>{
+        setTime(time+1)
+    },1000)
+
+    return time 
+   }
+    
+````
+
+To save it from them we can use useEffect like this
+````javascript
+ const StopWatch=()=>{
+    const [time,setTime]=useState(0)  
+    useEffect(()=>{
+        setTimeout(()=>{
+            setTime(time+1)
+        },1000) 
+    },[])
+
+    return time 
+   }
+   ````
+
+   But our purpose is not solver here because for the first time when this stopwatch component was called at that time the function that is inside the useEffect will created a closure and the value of time in it will always be zero so after each second when the setTimeout function will  run then the value of time will always be there zero so it will always makes the value to 1 and not more than that to solve this we can use the time in  dependencies array so that whenever the times changes then this function get re-render again and then it fetches a new value and due to that we create a new closure and we get a new value of time but it takes us to the 1st problem again that is of infinite renders .
+   One method to solve this problem is that we gave a new value to setter function each time using a function , so we will pass a function to the setter function that will returns you a new value each time 
+
+   ````javascript
+   const StopWatch = () => {
+    const [time, setTime] = useState(0);
+    useEffect(() => {
+      setInterval(() => {
+        setTime((t) => {
+        console.log(t) 
+          return t + 1;
+        });
+      }, 1000);
+    }, []);
+
+  ````
+
+  function that you gives to the useEffect can return an function that gives you a cleaning function and that cleanup function is called whenever that old useEffect is getting unmounted and the new useEffect is coming in . Here will will clear the interval that we created 
+
+````javascript
+const StopWatch = () => {
+    const [time, setTime] = useState(0);
+    useEffect(() => {
+      const intervalId=setInterval(() => {
+        setTime((t) => {
+        console.log(t) 
+          return t + 1;
+        });
+      }, 1000);
+      return ()=>clearInterval(intervalId)// this will be called when your useEffect is unmounting 
+    }, []);
+
+    return time;
+  };
+  ````
+
+
+
+  # useRef
+
+  A way to associate a state with a component, interesting thing with the useRef is that when you change  the value of reference it does not actually re-renders your component.
+  
+  Where to use useRef:
+  1. to get the reference of an HTML element
+
+````javascript
+  import {useEffect, useRef} from 'react'
+
+function UseRef() {
+    const inputRef=useRef(null)
+ 
+    useEffect(()=>{
+
+        // inputRef.focus() // inputRef is an pointer to the input and not actually  input while inputRef.current is that input 
+
+        // we are setting focus in thr useEffect because of while referring to an HTML element HTML element should be there it will be possible after the component is rendered 
+
+        inputRef.current.focus()
+        
+    },[])
+    
+  return (
+    <div> 
+        <input type="text" ref={inputRef} />
+    </div>
+  )
+}
+
+export default UseRef
+```` 
+
+
+Second use of useRef:
+1. To maintain the state without doing any update 
+The below code is not used much but you should have an idea that there is something like that also exist 
+
+````javascript
+import {useEffect, useRef,useState} from 'react'
+
+function UseRef() {
+    const inputRef=useRef(null)
+ 
+    useEffect(()=>{
+
+        // inputRef.focus() // inputRef is an pointer to the input and not actually  input while inputRef.current is that input 
+
+        // we are setting focus in thr useEffect because of while referring to an HTML element HTML element should be there it will be possible after the component is rendered 
+
+        inputRef.current.focus()
+        
+    },[])
+
+
+  const idRef=useRef(1)  
+  const [names,setNames]=useState([
+    { id:idRef.current++,name:"John"},
+    { id:idRef.current++,name:"Jane"}
+  ])
+  const addName=()=>{
+    setNames([...names,{
+        id:idRef.current++,
+        name:inputRef.current.value}])
+    inputRef.current.value=""
+  }
+
+  return (
+    <div> 
+        <input type="text" ref={inputRef} />
+        {names.map((name)=><div>{name.id}-{name.name}</div>)}
+        <button onClick={addName}>Add names</button>
+    </div>
+  )
+}
+
+ export default UseRef
+ ````

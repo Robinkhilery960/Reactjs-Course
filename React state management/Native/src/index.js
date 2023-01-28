@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 // import UseState from './useState.js'; 
 // import UseReducer from './useReducer.js'; 
 // import UseMemo_useCallback from './useMemo_useCallback.js';
-import UseEffect from './useEffect.js';
+// import UseEffect from './useEffect.js';
+import UseRef from './useRef.js';
   
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -12,7 +13,8 @@ root.render(
     {/* <UseState/> */}
     {/* <UseReducer /> */}
     {/* <UseMemo_useCallback /> */}
-    <UseEffect />
+    {/* <UseEffect /> */}
+    <UseRef />
   </React.StrictMode>
 );
 
